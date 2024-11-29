@@ -258,6 +258,8 @@ class Showcase extends StatefulWidget {
   /// Defaults to 14.
   final double toolTipMargin;
 
+  final double offset;
+
   const Showcase({
     required this.key,
     required this.description,
@@ -283,8 +285,7 @@ class Showcase extends StatefulWidget {
     this.movingAnimationDuration = const Duration(milliseconds: 2000),
     this.disableMovingAnimation,
     this.disableScaleAnimation,
-    this.tooltipPadding =
-        const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+    this.tooltipPadding = const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
     this.onToolTipClick,
     this.targetPadding = EdgeInsets.zero,
     this.blurValue,
@@ -305,6 +306,7 @@ class Showcase extends StatefulWidget {
     this.disableBarrierInteraction = false,
     this.toolTipSlideEndDistance = 7,
     this.toolTipMargin = 14,
+    this.offset = 0,
   })  : height = null,
         width = null,
         container = null,
@@ -331,8 +333,8 @@ class Showcase extends StatefulWidget {
     this.overlayColor = Colors.black45,
     this.targetBorderRadius,
     this.overlayOpacity = 0.75,
-    this.scrollLoadingWidget = const CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation(Colors.white)),
+    this.scrollLoadingWidget =
+        const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.white)),
     this.onTargetClick,
     this.disposeOnTap,
     this.movingAnimationDuration = const Duration(milliseconds: 2000),
@@ -346,6 +348,7 @@ class Showcase extends StatefulWidget {
     this.onBarrierClick,
     this.disableBarrierInteraction = false,
     this.toolTipSlideEndDistance = 7,
+    this.offset = 0,
   })  : showArrow = false,
         onToolTipClick = null,
         scaleAnimationDuration = const Duration(milliseconds: 300),
@@ -427,9 +430,7 @@ class _ShowcaseState extends State<Showcase> {
       }
 
       if (showCaseWidgetState.autoPlay) {
-        timer = Timer(
-            Duration(seconds: showCaseWidgetState.autoPlayDelay.inSeconds),
-            _nextIfAny);
+        timer = Timer(Duration(seconds: showCaseWidgetState.autoPlayDelay.inSeconds), _nextIfAny);
       }
     }
   }
@@ -481,12 +482,9 @@ class _ShowcaseState extends State<Showcase> {
   void recalculateRootWidgetSize() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final rootWidget =
-          context.findRootAncestorStateOfType<State<WidgetsApp>>();
+      final rootWidget = context.findRootAncestorStateOfType<State<WidgetsApp>>();
       rootRenderObject = rootWidget?.context.findRenderObject() as RenderBox?;
-      rootWidgetSize = rootWidget == null
-          ? MediaQuery.of(context).size
-          : rootRenderObject?.size;
+      rootWidgetSize = rootWidget == null ? MediaQuery.of(context).size : rootRenderObject?.size;
     });
   }
 
@@ -553,44 +551,42 @@ class _ShowcaseState extends State<Showcase> {
 
     return Stack(
       children: [
-        GestureDetector(
-          onTap: () {
-            if (!showCaseWidgetState.disableBarrierInteraction &&
-                !widget.disableBarrierInteraction) {
-              _nextIfAny();
-            }
-            widget.onBarrierClick?.call();
-          },
-          child: ClipPath(
-            clipper: RRectClipper(
-              area: _isScrollRunning ? Rect.zero : rectBound,
-              isCircle: widget.targetShapeBorder is CircleBorder,
-              radius: _isScrollRunning
-                  ? BorderRadius.zero
-                  : widget.targetBorderRadius,
-              overlayPadding:
-                  _isScrollRunning ? EdgeInsets.zero : widget.targetPadding,
-            ),
-            child: blur != 0
-                ? BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-                    child: Container(
+        Positioned(
+          top: widget.offset,
+          child: GestureDetector(
+            onTap: () {
+              if (!showCaseWidgetState.disableBarrierInteraction &&
+                  !widget.disableBarrierInteraction) {
+                _nextIfAny();
+              }
+              widget.onBarrierClick?.call();
+            },
+            child: ClipPath(
+              clipper: RRectClipper(
+                area: _isScrollRunning ? Rect.zero : rectBound,
+                isCircle: widget.targetShapeBorder is CircleBorder,
+                radius: _isScrollRunning ? BorderRadius.zero : widget.targetBorderRadius,
+                overlayPadding: _isScrollRunning ? EdgeInsets.zero : widget.targetPadding,
+              ),
+              child: blur != 0
+                  ? BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+                      child: Container(
+                        width: mediaQuerySize.width,
+                        height: mediaQuerySize.height,
+                        decoration: BoxDecoration(
+                          color: widget.overlayColor.withOpacity(widget.overlayOpacity),
+                        ),
+                      ),
+                    )
+                  : Container(
                       width: mediaQuerySize.width,
                       height: mediaQuerySize.height,
                       decoration: BoxDecoration(
-                        color: widget.overlayColor
-                            .withOpacity(widget.overlayOpacity),
+                        color: widget.overlayColor.withOpacity(widget.overlayOpacity),
                       ),
                     ),
-                  )
-                : Container(
-                    width: mediaQuerySize.width,
-                    height: mediaQuerySize.height,
-                    decoration: BoxDecoration(
-                      color: widget.overlayColor
-                          .withOpacity(widget.overlayOpacity),
-                    ),
-                  ),
+            ),
           ),
         ),
         if (_isScrollRunning) Center(child: widget.scrollLoadingWidget),
@@ -624,10 +620,10 @@ class _ShowcaseState extends State<Showcase> {
             contentWidth: widget.width,
             onTooltipTap: _getOnTooltipTap,
             tooltipPadding: widget.tooltipPadding,
-            disableMovingAnimation: widget.disableMovingAnimation ??
-                showCaseWidgetState.disableMovingAnimation,
-            disableScaleAnimation: widget.disableScaleAnimation ??
-                showCaseWidgetState.disableScaleAnimation,
+            disableMovingAnimation:
+                widget.disableMovingAnimation ?? showCaseWidgetState.disableMovingAnimation,
+            disableScaleAnimation:
+                widget.disableScaleAnimation ?? showCaseWidgetState.disableScaleAnimation,
             movingAnimationDuration: widget.movingAnimationDuration,
             tooltipBorderRadius: widget.tooltipBorderRadius,
             scaleAnimationDuration: widget.scaleAnimationDuration,
@@ -695,9 +691,7 @@ class _TargetWidget extends StatelessWidget {
         width: size.width,
         margin: targetPadding,
         decoration: ShapeDecoration(
-          shape: radius != null
-              ? RoundedRectangleBorder(borderRadius: radius!)
-              : shapeBorder,
+          shape: radius != null ? RoundedRectangleBorder(borderRadius: radius!) : shapeBorder,
         ),
       ),
     );
