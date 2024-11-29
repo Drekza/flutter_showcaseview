@@ -31,6 +31,7 @@ class GetPosition {
     required this.screenHeight,
     this.padding = EdgeInsets.zero,
     this.rootRenderObject,
+    this.yOffset = 0,
   }) {
     getRenderBox();
   }
@@ -40,6 +41,7 @@ class GetPosition {
   final double screenWidth;
   final double screenHeight;
   final RenderObject? rootRenderObject;
+  final double yOffset;
 
   late final RenderBox? _box;
   late final Offset? _boxOffset;
@@ -51,7 +53,7 @@ class GetPosition {
 
     _box = renderBox;
     _boxOffset = _box?.localToGlobal(
-      Offset.zero,
+      Offset(0, yOffset),
       ancestor: rootRenderObject,
     );
   }
