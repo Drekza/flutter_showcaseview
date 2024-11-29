@@ -603,7 +603,7 @@ class _ShowcaseState extends State<Showcase> {
             targetPadding: widget.targetPadding,
           ),
           Positioned(
-            top: -32,
+            top: widget.offset,
             child: ToolTipWidget(
               position: position,
               offset: offset,
